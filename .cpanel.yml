@@ -1,5 +1,4 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/puexams2/public_html/
-    - /bin/cp -R * $DEPLOYPATH
+    - /bin/touch /home/puexams2/public_html/deploy-test.txt
