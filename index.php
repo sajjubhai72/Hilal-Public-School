@@ -1,7 +1,4 @@
 <?php
-// Test Git 
-echo "Git Test";
-
 $pageTitle = 'Home';
 require_once 'includes/header.php';
 
