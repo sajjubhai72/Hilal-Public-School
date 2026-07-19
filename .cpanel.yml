@@ -2,4 +2,4 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/puexams2/public_html/
-    - /bin/rsync -av --delete ./ $DEPLOYPATH
+    - /bin/cp -R * $DEPLOYPATH
