@@ -6,10 +6,15 @@
 
 require_once __DIR__ . '/config.php';
 
+// define('DB_HOST', 'localhost');
+// define('DB_USER', 'puexams2_hilal_school');
+// define('DB_PASS', 'SajjuTech@212{0852}');
+// define('DB_NAME', 'puexams2_hilal_school');
+
 define('DB_HOST', 'localhost');
-define('DB_USER', 'puexams2_hilal_school');
-define('DB_PASS', 'SajjuTech@212{0852}');
-define('DB_NAME', 'puexams2_hilal_school');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'hilal_school');
 
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 

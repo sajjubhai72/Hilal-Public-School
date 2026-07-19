@@ -11,7 +11,6 @@ uploads/scholarship/*
 !uploads/scholarship/.gitkeep
 
 # Environment config — contains DB credentials
-includes/config.php
 
 # XAMPP specific
 *.bak
