@@ -1,0 +1,18 @@
+# Database
+database/*.sql
+
+# Logs
+logs/
+
+# Uploads (don't commit actual uploaded files)
+uploads/admissions/*
+uploads/scholarship/*
+!uploads/admissions/.gitkeep
+!uploads/scholarship/.gitkeep
+
+# Environment config — contains DB credentials
+includes/config.php
+
+# XAMPP specific
+*.bak
+*.log

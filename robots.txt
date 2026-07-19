@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /teacher/
+Disallow: /includes/
+Disallow: /database/
+Disallow: /logs/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://www.hilalschool.edu.np/sitemap.xml
