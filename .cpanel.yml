@@ -1,4 +1,5 @@
 ---
 deployment:
   tasks:
-    - /bin/touch /home/puexams2/public_html/deploy-test.txt
+    - export DEPLOYPATH=/home/puexams2/public_html/HilalPublicSchool/
+    - /bin/cp -R * $DEPLOYPATH
