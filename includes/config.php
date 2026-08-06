@@ -4,7 +4,7 @@
    Set ENVIRONMENT to 'production' before going live
    ===================================================== */
 
-define('ENVIRONMENT', 'production');
+define('ENVIRONMENT', 'development'); // temporarily for debugging live server
 
 if (ENVIRONMENT === 'production') {
     error_reporting(0);

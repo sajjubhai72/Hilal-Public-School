@@ -19,7 +19,12 @@ define('DB_NAME', 'hilal_school');
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 if ($conn->connect_error) {
-    die(json_encode(['success' => false, 'message' => 'Database connection failed.']));
+    if (ENVIRONMENT === 'development') {
+        die("Database connection failed: " . $conn->connect_error);
+    } else {
+        error_log("Database connection failed: " . $conn->connect_error);
+        die("Website temporarily unavailable. Please try again later.");
+    }
 }
 
 $conn->set_charset("utf8mb4");
@@ -29,14 +34,28 @@ $conn->set_charset("utf8mb4");
    ===================================================== */
 
 // Get school setting value
-function getSetting($conn, $key) {
-    $stmt = $conn->prepare("SELECT setting_value FROM school_settings WHERE setting_key = ?");
-    $stmt->bind_param("s", $key);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $stmt->close();
-    return $row ? $row['setting_value'] : '';
+function getSetting($conn, $key, $default = '') {
+    try {
+        $stmt = $conn->prepare("SELECT setting_value FROM settings WHERE setting_key = ? LIMIT 1");
+        if (!$stmt) return $default;
+        
+        $stmt->bind_param("s", $key);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result && $row = $result->fetch_assoc()) {
+            $stmt->close();
+            return $row['setting_value'] ?: $default;
+        }
+        
+        if ($stmt) $stmt->close();
+        return $default;
+    } catch (Exception $e) {
+        if (ENVIRONMENT === 'development') {
+            error_log("getSetting error for key '$key': " . $e->getMessage());
+        }
+        return $default;
+    }
 }
 
 // Calculate Grade from marks
