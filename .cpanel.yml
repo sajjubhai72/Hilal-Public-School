@@ -1,5 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/puexams2/public_html/HilalPublicSchool/
+    - export DEPLOYPATH=/home/username/public_html/
     - /bin/cp -R * $DEPLOYPATH
+    - /bin/cp -R .htaccess $DEPLOYPATH
+  
