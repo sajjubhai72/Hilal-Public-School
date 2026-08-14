@@ -6,10 +6,14 @@ RewriteEngine On
 # Set index file
 DirectoryIndex index.php
 
-# Admin folder - hide .php extension
+# Admin folder - check if file exists first
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^admin/([^/]+)/?$ admin/$1.php [L]
 
-# Teacher folder - hide .php extension  
+# Teacher folder - check if file exists first
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^teacher/([^/]+)/?$ teacher/$1.php [L]
 
 # Main site - hide .php extension
@@ -17,10 +21,6 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^(.*)$ $1.php [L]
-
-# Optional: Redirect .php to clean URL (comment out if causes issues)
-# RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
-# RewriteRule ^ /%1? [NC,L,R=301]
 
 # Prevent directory listing
 Options -Indexes
