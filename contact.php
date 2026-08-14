@@ -2,15 +2,15 @@
 $pageTitle = 'Contact Us';
 require_once 'includes/header.php';
 
-// Static contact info - no database dependency
-$schoolAddress   = 'Dharan-8, Sunsari, Nepal';
+// Original contact info from database
+$schoolAddress   = 'Harinagar RM-7, Hilal Nagar, Ghuski, Sunsari (Nepal)';
 $schoolPhone     = '+977-980-7071324';
-$schoolEmail     = 'hilalpublicschool095@gmail.com';
+$schoolEmail     = 'hilalpublicschool096@gmail.com';
 $schoolName      = 'Hilal Public Secondary School';
-$contactPerson1  = 'Admin Office';
-$contactPhone1   = '+977-980-7071324';
-$contactPerson2  = 'Principal';
-$contactPhone2   = '+977-980-7071324';
+$contactPerson1  = 'Jamil Ansari Nadavi';
+$contactPhone1   = '+977-9807072013';
+$contactPerson2  = 'Jawed Alam Qasmi';
+$contactPhone2   = '+977-9807366727';
 $principalName   = 'Mr. Principal';
 $facebookUrl     = 'https://facebook.com/hilalpublicschool';
 ?>
