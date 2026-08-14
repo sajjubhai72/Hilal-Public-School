@@ -2,10 +2,10 @@
 $pageTitle = 'Contact Us';
 require_once 'includes/header.php';
 
-// Get settings with fallback defaults - don't depend on database
-$schoolAddress   = 'Dharan-8, Sunsari, Nepal';  // Default address
-$schoolPhone     = '+977-980-7071324';           // Default phone
-$schoolEmail     = 'hilalpublicschool095@gmail.com'; // Default email
+// Static contact info - no database dependency
+$schoolAddress   = 'Dharan-8, Sunsari, Nepal';
+$schoolPhone     = '+977-980-7071324';
+$schoolEmail     = 'hilalpublicschool095@gmail.com';
 $schoolName      = 'Hilal Public Secondary School';
 $contactPerson1  = 'Admin Office';
 $contactPhone1   = '+977-980-7071324';
@@ -13,25 +13,6 @@ $contactPerson2  = 'Principal';
 $contactPhone2   = '+977-980-7071324';
 $principalName   = 'Mr. Principal';
 $facebookUrl     = 'https://facebook.com/hilalpublicschool';
-
-// Try to get from database if available, use defaults if not
-try {
-    if ($conn) {
-        $schoolAddress   = getSetting($conn, 'school_address', $schoolAddress);
-        $schoolPhone     = getSetting($conn, 'school_phone', $schoolPhone);
-        $schoolEmail     = getSetting($conn, 'school_email', $schoolEmail);
-        $schoolName      = getSetting($conn, 'school_name', $schoolName);
-        $contactPerson1  = getSetting($conn, 'contact_person_1', $contactPerson1);
-        $contactPhone1   = getSetting($conn, 'contact_phone_1', $contactPhone1);
-        $contactPerson2  = getSetting($conn, 'contact_person_2', $contactPerson2);
-        $contactPhone2   = getSetting($conn, 'contact_phone_2', $contactPhone2);
-        $principalName   = getSetting($conn, 'principal_name', $principalName);
-        $facebookUrl     = getSetting($conn, 'facebook_url', $facebookUrl);
-    }
-} catch (Exception $e) {
-    // Use defaults if database fails
-    error_log("Using default contact settings due to: " . $e->getMessage());
-}
 ?>
 
 <!-- Page Header -->
@@ -49,16 +30,14 @@ try {
 
 <section>
     <div class="container">
-        <div class="row g-5">
+        <div class="section-title" data-animate>
+            <h2>Get In Touch</h2>
+            <p>We'd love to hear from you. Reach out to us with any questions, admissions inquiries, or feedback.</p>
+        </div>
 
+        <div class="row g-5">
             <!-- Contact Info Cards -->
             <div class="col-lg-4" data-animate>
-                <h3 class="fw-bold text-primary-custom mb-4">Get In Touch</h3>
-                <p class="text-muted mb-4">
-                    We'd love to hear from you. Reach out to us with any questions, admissions inquiries,
-                    or feedback.
-                </p>
-
                 <!-- Address -->
                 <div class="d-flex gap-3 mb-4 p-4 rounded-3" style="background:var(--light);">
                     <div style="width:50px;height:50px;background:var(--primary);border-radius:12px;
@@ -67,7 +46,7 @@ try {
                     </div>
                     <div>
                         <h6 class="fw-bold mb-1">Our Address</h6>
-                        <p class="text-muted mb-0" style="font-size:14px;"><?= nl2br(htmlspecialchars($schoolAddress ?: 'Nepal')) ?></p>
+                        <p class="text-muted mb-0" style="font-size:14px;"><?= htmlspecialchars($schoolAddress) ?></p>
                     </div>
                 </div>
 
@@ -79,20 +58,16 @@ try {
                     </div>
                     <div style="flex:1;">
                         <h6 class="fw-bold mb-2">Contact Numbers</h6>
-                        <!-- Main school phone -->
-                        <?php if($schoolPhone): ?>
                         <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
                             <div>
-                                <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">School(Principal) </div>
+                                <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">School</div>
                                 <a href="tel:<?= htmlspecialchars($schoolPhone) ?>"
                                    style="font-size:14px;font-weight:600;color:var(--primary);">
                                     <?= htmlspecialchars($schoolPhone) ?>
                                 </a>
                             </div>
                         </div>
-                        <?php endif; ?>
-                        <!-- Contact Person 1 -->
-                        <?php if($contactPerson1 && $contactPhone1): ?>
+                        <?php if($contactPhone1): ?>
                         <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
                             <div>
                                 <div style="font-size:12px;font-weight:700;color:var(--text-muted);">
@@ -105,15 +80,11 @@ try {
                             </div>
                         </div>
                         <?php endif; ?>
-                        <!-- Contact Person 2 — Principal -->
-                        <?php if($contactPerson2 && $contactPhone2): ?>
+                        <?php if($contactPhone2): ?>
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
                                 <div style="font-size:12px;font-weight:700;color:var(--text-muted);">
                                     <?= htmlspecialchars($contactPerson2) ?>
-                                    <?php if($principalName && str_contains($contactPerson2, explode(' ', $principalName)[0])): ?>
-                                    
-                                    <?php endif; ?>
                                 </div>
                                 <a href="tel:<?= htmlspecialchars($contactPhone2) ?>"
                                    style="font-size:14px;font-weight:600;color:var(--primary);">
@@ -126,7 +97,6 @@ try {
                 </div>
 
                 <!-- Email -->
-                <?php if($schoolEmail): ?>
                 <div class="d-flex gap-3 mb-4 p-4 rounded-3" style="background:var(--light);">
                     <div style="width:50px;height:50px;background:var(--accent);border-radius:12px;
                                 display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -139,7 +109,6 @@ try {
                         </a>
                     </div>
                 </div>
-                <?php endif; ?>
 
                 <!-- School Hours -->
                 <div class="d-flex gap-3 p-4 rounded-3" style="background:var(--light);">
@@ -150,8 +119,8 @@ try {
                     <div>
                         <h6 class="fw-bold mb-1">School Hours</h6>
                         <p class="text-muted mb-0" style="font-size:14px;line-height:1.8;">
-                            Sun – Thur: 7:00 AM – 1:00 PM<br>
-                            <span style="color:var(--secondary);">Friday: Closed <br>Saturday: Closed</span>
+                            Sun – Thu: 7:00 AM – 1:00 PM<br>
+                            <span style="color:var(--secondary);">Friday: Closed<br>Saturday: Closed</span>
                         </p>
                     </div>
                 </div>
@@ -221,7 +190,6 @@ try {
     <div class="container">
         <div class="rounded-3 overflow-hidden shadow" style="height:400px;background:var(--light);
              display:flex;align-items:center;justify-content:center;">
-            <!-- Replace src with actual Google Maps embed URL for the school location -->
             <iframe
                 src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d661.6598075970815!2d87.10068496977686!3d26.46089821665724!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2snp!4v1781724584598!5m2!1sen!2snp"
                 width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy"
@@ -230,7 +198,7 @@ try {
         </div>
         <p class="text-center text-muted mt-2" style="font-size:13px;">
             <i class="fas fa-info-circle me-1"></i>
-            Update the Google Maps embed URL with the actual school location coordinates.
+            School location map embedded above.
         </p>
     </div>
 </section>
