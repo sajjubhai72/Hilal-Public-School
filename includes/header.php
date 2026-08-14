@@ -11,7 +11,7 @@ $defaults = [
     'school_address' => 'Harinagar RM-7, Hilal Nagar, Ghuski, Sunsari (Nepal)',
     'school_website' => 'https://hilalpublicschool.edu.np',
     'facebook_url'   => 'https://facebook.com/hilalpublicschool',
-    'youtube_url'    => 'https://youtube.com/@hilalpublicschool',
+    'youtube_url'    => 'https://youtube.com/',
     'school_logo'    => 'assets/images/logo.jpg'
 ];
 
@@ -194,7 +194,7 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
     <div class="container">
 
         <!-- Brand / Logo -->
-        <a class="navbar-brand d-flex align-items-center gap-2" href="<?= $base ?>index.php">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="<?= $base ?>">
             <img src="<?= $base ?>assets/images/logo.png" alt="<?= htmlspecialchars($schoolName) ?> Logo"
                  class="school-logo" onerror="this.style.display='none'">
             <div class="school-info">
@@ -213,12 +213,12 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
         <div class="collapse navbar-collapse" id="desktopNav">
             <ul class="navbar-nav ms-auto align-items-center gap-1">
                 <li class="nav-item">
-                    <a class="nav-link <?= $currentPage=='index.php'?'active':'' ?>" href="<?= $base ?>index.php">
+                    <a class="nav-link <?= $currentPage=='index.php'?'active':'' ?>" href="<?= $base ?>">
                         Home
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $currentPage=='about.php'?'active':'' ?>" href="<?= $base ?>about.php">
+                    <a class="nav-link <?= $currentPage=='about.php'?'active':'' ?>" href="<?= $base ?>about">
                         About
                     </a>
                 </li>
@@ -226,29 +226,29 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
                     <a class="nav-link dropdown-toggle <?= in_array($currentPage,['teachers.php','results.php'])?'active':'' ?>"
                        href="#" data-bs-toggle="dropdown">Academics</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<?= $base ?>teachers.php">
+                        <li><a class="dropdown-item" href="<?= $base ?>teachers">
                             <i class="fas fa-chalkboard-teacher me-2"></i>Teachers</a></li>
-                        <li><a class="dropdown-item" href="<?= $base ?>results.php">
+                        <li><a class="dropdown-item" href="<?= $base ?>results">
                             <i class="fas fa-poll me-2"></i>Results</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $currentPage=='notices.php'?'active':'' ?>" href="<?= $base ?>notices.php">Notices</a>
+                    <a class="nav-link <?= $currentPage=='notices.php'?'active':'' ?>" href="<?= $base ?>notices">Notices</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $currentPage=='admissions.php'?'active':'' ?>" href="<?= $base ?>admissions.php">Admissions</a>
+                    <a class="nav-link <?= $currentPage=='admissions.php'?'active':'' ?>" href="<?= $base ?>admissions">Admissions</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $currentPage=='scholarship.php'?'active':'' ?>" href="<?= $base ?>scholarship.php">Scholarship</a>
+                    <a class="nav-link <?= $currentPage=='scholarship.php'?'active':'' ?>" href="<?= $base ?>scholarship">Scholarship</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $currentPage=='events.php'?'active':'' ?>" href="<?= $base ?>events.php">Events</a>
+                    <a class="nav-link <?= $currentPage=='events.php'?'active':'' ?>" href="<?= $base ?>events">Events</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $currentPage=='gallery.php'?'active':'' ?>" href="<?= $base ?>gallery.php">Gallery</a>
+                    <a class="nav-link <?= $currentPage=='gallery.php'?'active':'' ?>" href="<?= $base ?>gallery">Gallery</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link nav-contact <?= $currentPage=='contact.php'?'active':'' ?>" href="<?= $base ?>contact.php">Contact</a>
+                    <a class="nav-link nav-contact <?= $currentPage=='contact.php'?'active':'' ?>" href="<?= $base ?>contact">Contact</a>
                 </li>
             </ul>
         </div>
@@ -283,54 +283,54 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
     <div class="offcanvas-body mobile-nav-body">
         <ul class="mobile-nav-list">
             <li>
-                <a href="<?= $base ?>index.php" class="mobile-nav-link <?= $currentPage=='index.php'?'active':'' ?>">
+                <a href="<?= $base ?>" class="mobile-nav-link <?= $currentPage=='index.php'?'active':'' ?>">
                     <i class="fas fa-home"></i>Home
                 </a>
             </li>
             <li>
-                <a href="<?= $base ?>about.php" class="mobile-nav-link <?= $currentPage=='about.php'?'active':'' ?>">
+                <a href="<?= $base ?>about" class="mobile-nav-link <?= $currentPage=='about.php'?'active':'' ?>">
                     <i class="fas fa-info-circle"></i>About Us
                 </a>
             </li>
             <li class="mobile-nav-divider">Academics</li>
             <li>
-                <a href="<?= $base ?>teachers.php" class="mobile-nav-link <?= $currentPage=='teachers.php'?'active':'' ?>">
+                <a href="<?= $base ?>teachers" class="mobile-nav-link <?= $currentPage=='teachers.php'?'active':'' ?>">
                     <i class="fas fa-chalkboard-teacher"></i>Teachers
                 </a>
             </li>
             <li>
-                <a href="<?= $base ?>results.php" class="mobile-nav-link <?= $currentPage=='results.php'?'active':'' ?>">
+                <a href="<?= $base ?>results" class="mobile-nav-link <?= $currentPage=='results.php'?'active':'' ?>">
                     <i class="fas fa-poll-h"></i>Results
                 </a>
             </li>
             <li class="mobile-nav-divider">School</li>
             <li>
-                <a href="<?= $base ?>notices.php" class="mobile-nav-link <?= $currentPage=='notices.php'?'active':'' ?>">
+                <a href="<?= $base ?>notices" class="mobile-nav-link <?= $currentPage=='notices.php'?'active':'' ?>">
                     <i class="fas fa-bullhorn"></i>Notices
                 </a>
             </li>
             <li>
-                <a href="<?= $base ?>admissions.php" class="mobile-nav-link <?= $currentPage=='admissions.php'?'active':'' ?>">
+                <a href="<?= $base ?>admissions" class="mobile-nav-link <?= $currentPage=='admissions.php'?'active':'' ?>">
                     <i class="fas fa-user-graduate"></i>Admissions
                 </a>
             </li>
             <li>
-                <a href="<?= $base ?>scholarship.php" class="mobile-nav-link <?= $currentPage=='scholarship.php'?'active':'' ?>">
+                <a href="<?= $base ?>scholarship" class="mobile-nav-link <?= $currentPage=='scholarship.php'?'active':'' ?>">
                     <i class="fas fa-award"></i>Scholarship
                 </a>
             </li>
             <li>
-                <a href="<?= $base ?>events.php" class="mobile-nav-link <?= $currentPage=='events.php'?'active':'' ?>">
+                <a href="<?= $base ?>events" class="mobile-nav-link <?= $currentPage=='events.php'?'active':'' ?>">
                     <i class="fas fa-calendar-alt"></i>Events
                 </a>
             </li>
             <li>
-                <a href="<?= $base ?>gallery.php" class="mobile-nav-link <?= $currentPage=='gallery.php'?'active':'' ?>">
+                <a href="<?= $base ?>gallery" class="mobile-nav-link <?= $currentPage=='gallery.php'?'active':'' ?>">
                     <i class="fas fa-images"></i>Gallery
                 </a>
             </li>
             <li>
-                <a href="<?= $base ?>contact.php" class="mobile-nav-link <?= $currentPage=='contact.php'?'active':'' ?>">
+                <a href="<?= $base ?>contact" class="mobile-nav-link <?= $currentPage=='contact.php'?'active':'' ?>">
                     <i class="fas fa-envelope"></i>Contact
                 </a>
             </li>
