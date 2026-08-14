@@ -6,21 +6,11 @@ RewriteEngine On
 # Set index file
 DirectoryIndex index.php
 
-# Admin folder - check if file exists first
+# Simple rule - works for all folders
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^admin/([^/]+)/?$ admin/$1.php [L]
-
-# Teacher folder - check if file exists first
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^teacher/([^/]+)/?$ teacher/$1.php [L]
-
-# Main site - hide .php extension
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME}.php -f
-RewriteRule ^(.*)$ $1.php [L]
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI}.php -f
+RewriteRule ^(.+)$ $1.php [L,QSA]
 
 # Prevent directory listing
 Options -Indexes

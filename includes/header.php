@@ -191,7 +191,7 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
                 <?php endif; ?>
             </div>
             <!-- Right: login -->
-            <a href="<?= $base ?>admin/login.php" class="top-admin-btn" style="white-space:nowrap;flex-shrink:0;">
+            <a href="<?= $base ?>admin/login" class="top-admin-btn" style="white-space:nowrap;flex-shrink:0;">
                 <i class="fas fa-lock me-1"></i>Login
             </a>
         </div>
@@ -357,7 +357,7 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
                 <i class="fas fa-envelope"></i><?= htmlspecialchars($schoolEmail) ?>
             </a>
             <?php endif; ?>
-            <a href="<?= $base ?>admin/login.php" class="mobile-nav-action admin-action">
+            <a href="<?= $base ?>admin/login" class="mobile-nav-action admin-action">
                 <i class="fas fa-lock"></i>LogIn
             </a>
         </div>
