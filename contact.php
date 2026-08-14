@@ -1,48 +1,36 @@
 <?php
-// Debug for live server
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-ob_start(); // Start output buffering to catch any errors
-
 $pageTitle = 'Contact Us';
-
-// Test database connection before including header
-try {
-    require_once 'includes/db.php';
-    echo "<!-- DB connection successful -->\n";
-} catch (Exception $e) {
-    die("Database Error: " . $e->getMessage());
-}
-
-// Test getSetting function
-try {
-    $testSetting = getSetting($conn, 'school_name', 'Test School');
-    echo "<!-- getSetting test: $testSetting -->\n";
-} catch (Exception $e) {
-    die("getSetting Error: " . $e->getMessage());
-}
-
 require_once 'includes/header.php';
 
-// Get settings with error handling
+// Get settings with fallback defaults - don't depend on database
+$schoolAddress   = 'Dharan-8, Sunsari, Nepal';  // Default address
+$schoolPhone     = '+977-980-7071324';           // Default phone
+$schoolEmail     = 'hilalpublicschool095@gmail.com'; // Default email
+$schoolName      = 'Hilal Public Secondary School';
+$contactPerson1  = 'Admin Office';
+$contactPhone1   = '+977-980-7071324';
+$contactPerson2  = 'Principal';
+$contactPhone2   = '+977-980-7071324';
+$principalName   = 'Mr. Principal';
+$facebookUrl     = 'https://facebook.com/hilalpublicschool';
+
+// Try to get from database if available, use defaults if not
 try {
-    $schoolAddress   = getSetting($conn, 'school_address', 'Nepal');
-    $schoolPhone     = getSetting($conn, 'school_phone', '');
-    $schoolEmail     = getSetting($conn, 'school_email', '');
-    $schoolName      = getSetting($conn, 'school_name', 'Hilal Public Secondary School');
-    $contactPerson1  = getSetting($conn, 'contact_person_1', '');
-    $contactPhone1   = getSetting($conn, 'contact_phone_1', '');
-    $contactPerson2  = getSetting($conn, 'contact_person_2', '');
-    $contactPhone2   = getSetting($conn, 'contact_phone_2', '');
-    $principalName   = getSetting($conn, 'principal_name', '');
-    $facebookUrl     = getSetting($conn, 'facebook_url', '');
-    
-    // Debug output
-    echo "<!-- Settings loaded successfully -->\n";
-    echo "<!-- School Name: $schoolName -->\n";
-    
+    if ($conn) {
+        $schoolAddress   = getSetting($conn, 'school_address', $schoolAddress);
+        $schoolPhone     = getSetting($conn, 'school_phone', $schoolPhone);
+        $schoolEmail     = getSetting($conn, 'school_email', $schoolEmail);
+        $schoolName      = getSetting($conn, 'school_name', $schoolName);
+        $contactPerson1  = getSetting($conn, 'contact_person_1', $contactPerson1);
+        $contactPhone1   = getSetting($conn, 'contact_phone_1', $contactPhone1);
+        $contactPerson2  = getSetting($conn, 'contact_person_2', $contactPerson2);
+        $contactPhone2   = getSetting($conn, 'contact_phone_2', $contactPhone2);
+        $principalName   = getSetting($conn, 'principal_name', $principalName);
+        $facebookUrl     = getSetting($conn, 'facebook_url', $facebookUrl);
+    }
 } catch (Exception $e) {
-    die("Settings Error: " . $e->getMessage());
+    // Use defaults if database fails
+    error_log("Using default contact settings due to: " . $e->getMessage());
 }
 ?>
 
