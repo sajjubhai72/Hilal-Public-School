@@ -36,29 +36,27 @@ $conn->set_charset("utf8mb4");
 // Get school setting value
 function getSetting($conn, $key, $default = '') {
     try {
-        // Check if settings table exists
-        $tableCheck = $conn->query("SHOW TABLES LIKE 'settings'");
-        if ($tableCheck->num_rows === 0) {
-            error_log("Settings table does not exist");
-            return $default;
+        // Try both table names - school_settings (current) and settings (if exists)
+        $tables = ['school_settings', 'settings'];
+        
+        foreach ($tables as $table) {
+            $tableCheck = $conn->query("SHOW TABLES LIKE '$table'");
+            if ($tableCheck && $tableCheck->num_rows > 0) {
+                $stmt = $conn->prepare("SELECT setting_value FROM $table WHERE setting_key = ? LIMIT 1");
+                if ($stmt) {
+                    $stmt->bind_param("s", $key);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    
+                    if ($result && $row = $result->fetch_assoc()) {
+                        $stmt->close();
+                        return $row['setting_value'] ?: $default;
+                    }
+                    $stmt->close();
+                }
+            }
         }
         
-        $stmt = $conn->prepare("SELECT setting_value FROM settings WHERE setting_key = ? LIMIT 1");
-        if (!$stmt) {
-            error_log("Failed to prepare getSetting statement: " . $conn->error);
-            return $default;
-        }
-        
-        $stmt->bind_param("s", $key);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        if ($result && $row = $result->fetch_assoc()) {
-            $stmt->close();
-            return $row['setting_value'] ?: $default;
-        }
-        
-        if ($stmt) $stmt->close();
         return $default;
     } catch (Exception $e) {
         if (ENVIRONMENT === 'development') {

@@ -1,15 +1,30 @@
 <?php
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/nepali_date.php';
-$schoolName    = getSetting($conn, 'school_name');
-$schoolMotto   = getSetting($conn, 'school_motto');
-$schoolPhone   = getSetting($conn, 'school_phone');
-$schoolEmail   = getSetting($conn, 'school_email');
-$schoolAddress = getSetting($conn, 'school_address');
-$schoolWebsite = getSetting($conn, 'school_website');
-$facebookUrl   = getSetting($conn, 'facebook_url');
-$youtubeUrl    = getSetting($conn, 'youtube_url');
-$schoolLogo    = getSetting($conn, 'school_logo');
+
+// Default values (fallback if database fails)
+$defaults = [
+    'school_name'    => 'Hilal Public Secondary School',
+    'school_motto'   => 'Education for Excellence',
+    'school_phone'   => '+977-980-7071324',
+    'school_email'   => 'hilalpublicschool096@gmail.com',
+    'school_address' => 'Harinagar RM-7, Hilal Nagar, Ghuski, Sunsari (Nepal)',
+    'school_website' => 'https://hilalpublicschool.edu.np',
+    'facebook_url'   => 'https://facebook.com/hilalpublicschool',
+    'youtube_url'    => 'https://youtube.com/@hilalpublicschool',
+    'school_logo'    => 'assets/images/logo.jpg'
+];
+
+// Try to get from database, use defaults if fails
+$schoolName    = getSetting($conn, 'school_name', $defaults['school_name']);
+$schoolMotto   = getSetting($conn, 'school_motto', $defaults['school_motto']);
+$schoolPhone   = getSetting($conn, 'school_phone', $defaults['school_phone']);
+$schoolEmail   = getSetting($conn, 'school_email', $defaults['school_email']);
+$schoolAddress = getSetting($conn, 'school_address', $defaults['school_address']);
+$schoolWebsite = getSetting($conn, 'school_website', $defaults['school_website']);
+$facebookUrl   = getSetting($conn, 'facebook_url', $defaults['facebook_url']);
+$youtubeUrl    = getSetting($conn, 'youtube_url', $defaults['youtube_url']);
+$schoolLogo    = getSetting($conn, 'school_logo', $defaults['school_logo']);
 
 $currentPage = basename($_SERVER['PHP_SELF']);
 $base = str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/', 1) - 1);
