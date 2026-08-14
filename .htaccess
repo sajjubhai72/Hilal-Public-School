@@ -6,7 +6,13 @@ RewriteEngine On
 # Set index file
 DirectoryIndex index.php
 
-# Hide .php extension - allow both with and without
+# Admin folder - hide .php extension
+RewriteRule ^admin/([^/]+)/?$ admin/$1.php [L]
+
+# Teacher folder - hide .php extension  
+RewriteRule ^teacher/([^/]+)/?$ teacher/$1.php [L]
+
+# Main site - hide .php extension
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME}.php -f
