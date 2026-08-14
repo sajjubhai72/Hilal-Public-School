@@ -158,6 +158,23 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
     <link rel="stylesheet" href="<?= $base ?>assets/css/style.css">
     <!-- jQuery in HEAD — so inline scripts work -->
     <script src="<?= $base ?>assets/vendors/bootstrap/jquery.min.js"></script>
+    
+    <style>
+    /* Ensure mobile navbar closes smoothly */
+    .offcanvas.hiding {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    
+    /* Fix navbar overlay issues */
+    .offcanvas-backdrop.fade {
+        opacity: 0.5;
+    }
+    
+    .offcanvas-backdrop.show {
+        opacity: 0.5;
+    }
+    </style>
 </head>
 <body>
 
@@ -363,3 +380,42 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
         </div>
     </div>
 </div>
+
+<script>
+// Auto-close mobile navbar on page navigation
+$(document).ready(function() {
+    // Close mobile navbar when clicking nav links
+    $('.mobile-nav-link, .navbar-nav .nav-link').on('click', function() {
+        // Close Bootstrap offcanvas
+        const offcanvasElement = document.getElementById('mobileNav');
+        if (offcanvasElement) {
+            const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+            if (offcanvas) {
+                offcanvas.hide();
+            }
+        }
+    });
+    
+    // Force close navbar on page load (in case it was left open)
+    const offcanvasElement = document.getElementById('mobileNav');
+    if (offcanvasElement) {
+        const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+        if (offcanvas) {
+            offcanvas.hide();
+        }
+    }
+    
+    // Close navbar when clicking outside or on overlay
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.navbar, .mobile-nav').length) {
+            const offcanvasElement = document.getElementById('mobileNav');
+            if (offcanvasElement) {
+                const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement);
+                if (offcanvas) {
+                    offcanvas.hide();
+                }
+            }
+        }
+    });
+});
+</script>
