@@ -29,6 +29,15 @@ $schoolLogo    = getSetting($conn, 'school_logo', $defaults['school_logo']);
 $currentPage = basename($_SERVER['PHP_SELF']);
 $base = str_repeat('../', substr_count($_SERVER['PHP_SELF'], '/', 1) - 1);
 
+// Absolute home path - always works
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'];
+$scriptDir = dirname($_SERVER['SCRIPT_NAME']);
+$homeUrl = $protocol . '://' . $host . $scriptDir . '/';
+// Remove double slashes
+$homeUrl = preg_replace('#/+#', '/', $homeUrl);
+$homeUrl = str_replace(':/', '://', $homeUrl);
+
 // ── Per-page SEO ──────────────────────────────────────
 $siteUrl     = (isset($_SERVER['HTTPS'])&&$_SERVER['HTTPS']==='on'?'https':'http').'://'.$_SERVER['HTTP_HOST'];
 $currentUrl  = $siteUrl.$_SERVER['REQUEST_URI'];
@@ -194,7 +203,7 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
     <div class="container">
 
         <!-- Brand / Logo -->
-        <a class="navbar-brand d-flex align-items-center gap-2" href="<?= $base ?>">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="<?= $homeUrl ?>">
             <img src="<?= $base ?>assets/images/logo.png" alt="<?= htmlspecialchars($schoolName) ?> Logo"
                  class="school-logo" onerror="this.style.display='none'">
             <div class="school-info">
@@ -213,7 +222,7 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
         <div class="collapse navbar-collapse" id="desktopNav">
             <ul class="navbar-nav ms-auto align-items-center gap-1">
                 <li class="nav-item">
-                    <a class="nav-link <?= $currentPage=='index.php'?'active':'' ?>" href="<?= $base ?>">
+                    <a class="nav-link <?= $currentPage=='index.php'?'active':'' ?>" href="<?= $homeUrl ?>">
                         Home
                     </a>
                 </li>
@@ -283,7 +292,7 @@ $pageTitle_seo = (isset($pageTitle) ? htmlspecialchars($pageTitle).' — ' : '')
     <div class="offcanvas-body mobile-nav-body">
         <ul class="mobile-nav-list">
             <li>
-                <a href="<?= $base ?>" class="mobile-nav-link <?= $currentPage=='index.php'?'active':'' ?>">
+                <a href="<?= $homeUrl ?>" class="mobile-nav-link <?= $currentPage=='index.php'?'active':'' ?>">
                     <i class="fas fa-home"></i>Home
                 </a>
             </li>
