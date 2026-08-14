@@ -2,20 +2,48 @@
 // Debug for live server
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+ob_start(); // Start output buffering to catch any errors
 
 $pageTitle = 'Contact Us';
+
+// Test database connection before including header
+try {
+    require_once 'includes/db.php';
+    echo "<!-- DB connection successful -->\n";
+} catch (Exception $e) {
+    die("Database Error: " . $e->getMessage());
+}
+
+// Test getSetting function
+try {
+    $testSetting = getSetting($conn, 'school_name', 'Test School');
+    echo "<!-- getSetting test: $testSetting -->\n";
+} catch (Exception $e) {
+    die("getSetting Error: " . $e->getMessage());
+}
+
 require_once 'includes/header.php';
 
-$schoolAddress   = getSetting($conn, 'school_address');
-$schoolPhone     = getSetting($conn, 'school_phone');
-$schoolEmail     = getSetting($conn, 'school_email');
-$schoolName      = getSetting($conn, 'school_name');
-$contactPerson1  = getSetting($conn, 'contact_person_1');
-$contactPhone1   = getSetting($conn, 'contact_phone_1');
-$contactPerson2  = getSetting($conn, 'contact_person_2');
-$contactPhone2   = getSetting($conn, 'contact_phone_2');
-$principalName   = getSetting($conn, 'principal_name');
-$facebookUrl     = getSetting($conn, 'facebook_url');
+// Get settings with error handling
+try {
+    $schoolAddress   = getSetting($conn, 'school_address', 'Nepal');
+    $schoolPhone     = getSetting($conn, 'school_phone', '');
+    $schoolEmail     = getSetting($conn, 'school_email', '');
+    $schoolName      = getSetting($conn, 'school_name', 'Hilal Public Secondary School');
+    $contactPerson1  = getSetting($conn, 'contact_person_1', '');
+    $contactPhone1   = getSetting($conn, 'contact_phone_1', '');
+    $contactPerson2  = getSetting($conn, 'contact_person_2', '');
+    $contactPhone2   = getSetting($conn, 'contact_phone_2', '');
+    $principalName   = getSetting($conn, 'principal_name', '');
+    $facebookUrl     = getSetting($conn, 'facebook_url', '');
+    
+    // Debug output
+    echo "<!-- Settings loaded successfully -->\n";
+    echo "<!-- School Name: $schoolName -->\n";
+    
+} catch (Exception $e) {
+    die("Settings Error: " . $e->getMessage());
+}
 ?>
 
 <!-- Page Header -->

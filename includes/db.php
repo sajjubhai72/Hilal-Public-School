@@ -36,8 +36,18 @@ $conn->set_charset("utf8mb4");
 // Get school setting value
 function getSetting($conn, $key, $default = '') {
     try {
+        // Check if settings table exists
+        $tableCheck = $conn->query("SHOW TABLES LIKE 'settings'");
+        if ($tableCheck->num_rows === 0) {
+            error_log("Settings table does not exist");
+            return $default;
+        }
+        
         $stmt = $conn->prepare("SELECT setting_value FROM settings WHERE setting_key = ? LIMIT 1");
-        if (!$stmt) return $default;
+        if (!$stmt) {
+            error_log("Failed to prepare getSetting statement: " . $conn->error);
+            return $default;
+        }
         
         $stmt->bind_param("s", $key);
         $stmt->execute();
