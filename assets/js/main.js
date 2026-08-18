@@ -185,6 +185,59 @@ $(document).ready(function () {
         len > 900 ? $('#charCount').addClass('text-danger') : $('#charCount').removeClass('text-danger');
     });
 
+    /* ── Hero Slider Image Optimization ─────────────── */
+    function optimizeHeroSliderImages() {
+        const sliderImages = $('.hero-slide-image');
+        if (sliderImages.length) {
+            // Preload the first (active) slide image immediately
+            const firstSlide = $('.carousel-item.active .hero-slide-image');
+            if (firstSlide.length) {
+                preloadImage(firstSlide[0]);
+            }
+            
+            // Preload other images with delay to prevent blocking
+            setTimeout(() => {
+                sliderImages.each(function(index) {
+                    if (index > 0) { // Skip first image (already preloaded)
+                        preloadImage(this, index * 200); // 200ms delay between each
+                    }
+                });
+            }, 500);
+            
+            // Handle carousel slide events to ensure smooth transitions
+            $('#heroSlider').on('slide.bs.carousel', function (e) {
+                const nextSlideImg = $(e.relatedTarget).find('.hero-slide-image')[0];
+                if (nextSlideImg && !nextSlideImg.complete) {
+                    preloadImage(nextSlideImg);
+                }
+            });
+        }
+    }
+    
+    function preloadImage(imgElement, delay = 0) {
+        setTimeout(() => {
+            if (imgElement.complete && imgElement.naturalHeight !== 0) {
+                imgElement.style.opacity = '1';
+                return;
+            }
+            
+            const img = new Image();
+            img.onload = function() {
+                imgElement.style.opacity = '1';
+                imgElement.classList.add('loaded');
+            };
+            img.onerror = function() {
+                // Fallback to default image
+                imgElement.style.opacity = '1';
+                imgElement.src = './image/image.png';
+            };
+            img.src = imgElement.src;
+        }, delay);
+    }
+    
+    // Initialize hero slider optimization
+    optimizeHeroSliderImages();
+
 });
 
 /* ── Scroll top button CSS ─────────────────────────── */

@@ -2,6 +2,11 @@
 $pageTitle = 'Contact Messages';
 require_once 'includes/auth.php';
 
+// Generate CSRF token for form protection
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Mark as read
 if (isset($_GET['read'])) {
     $msgId = (int)$_GET['read'];
@@ -12,10 +17,52 @@ if (isset($_GET['read'])) {
 
 // Delete
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action']??'') === 'delete') {
-    $msgId = (int)($_POST['msg_id'] ?? 0);
-    if ($msgId) $conn->query("DELETE FROM contact_messages WHERE id=$msgId");
-    header('Location: messages.php');
-    exit();
+    // Verify CSRF token
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $message = "Invalid form submission. Please try again.";
+        $messageType = 'danger';
+    } else {
+        // Regenerate token after successful submission
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        
+        $msgId = (int)($_POST['msg_id'] ?? 0);
+        if ($msgId) {
+            if ($conn->query("DELETE FROM contact_messages WHERE id=$msgId")) {
+                $message = 'Message deleted successfully.'; $messageType = 'success';
+            } else {
+                $message = 'Failed to delete message.'; $messageType = 'danger';
+            }
+        }
+        
+        // Redirect to prevent form resubmission (PRG pattern)
+        if (isset($message)) {
+            // Preserve current state
+            $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $currentSearch = isset($_GET['search']) ? $_GET['search'] : '';
+            $currentFilter = isset($_GET['filter']) ? $_GET['filter'] : '';
+            $currentSort = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
+            $currentDir = isset($_GET['dir']) ? $_GET['dir'] : 'DESC';
+            $currentPerPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+            
+            // Build redirect URL with current state
+            $redirectParams = [];
+            if ($currentPage > 1) $redirectParams[] = "page=$currentPage";
+            if (!empty($currentSearch)) $redirectParams[] = "search=" . urlencode($currentSearch);
+            if (!empty($currentFilter)) $redirectParams[] = "filter=" . urlencode($currentFilter);
+            if ($currentSort !== 'created_at') $redirectParams[] = "sort=$currentSort";
+            if ($currentDir !== 'DESC') $redirectParams[] = "dir=$currentDir";
+            if ($currentPerPage !== 10) $redirectParams[] = "per_page=$currentPerPage";
+            
+            $redirectUrl = 'messages.php' . (!empty($redirectParams) ? '?' . implode('&', $redirectParams) : '');
+            
+            echo "<script>
+                sessionStorage.setItem('messageMessage', '" . addslashes($message) . "');
+                sessionStorage.setItem('messageMessageType', '$messageType');
+                window.location.href = '$redirectUrl';
+            </script>";
+            exit;
+        }
+    }
 }
 
 // Mark all read
@@ -66,6 +113,39 @@ $mUrl = function($ov) use ($bp) {
 
 require_once 'includes/layout_top.php';
 ?>
+
+<!-- Alert Messages -->
+<div id="alertContainer"></div>
+
+<script>
+// Show alert messages from session storage
+document.addEventListener('DOMContentLoaded', function() {
+    const message = sessionStorage.getItem('messageMessage');
+    const type = sessionStorage.getItem('messageMessageType');
+    
+    if (message) {
+        const alertClass = type === 'success' ? 'alert-success' : (type === 'danger' ? 'alert-danger' : 'alert-warning');
+        const alertIcon = type === 'success' ? 'fa-check-circle' : (type === 'danger' ? 'fa-exclamation-triangle' : 'fa-info-circle');
+        
+        document.getElementById('alertContainer').innerHTML = `
+            <div class="alert ${alertClass} alert-dismissible fade show mb-4">
+                <i class="fas ${alertIcon} me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Clear the messages
+        sessionStorage.removeItem('messageMessage');
+        sessionStorage.removeItem('messageMessageType');
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.remove();
+        }, 5000);
+    }
+});
+</script>
 
 <!-- Toolbar -->
 <div class="d-flex gap-2 mb-4 flex-wrap align-items-center">
@@ -176,10 +256,13 @@ require_once 'includes/layout_top.php';
                     <i class="fas fa-check me-1"></i>Mark Read
                 </a>
                 <?php endif; ?>
-                <form method="POST" onsubmit="return confirm('Delete this message?')">
+                <form method="POST" onsubmit="return confirm('Are you sure you want to delete this message? This action cannot be undone.')">
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="msg_id" value="<?= $msg['id'] ?>">
-                    <button type="submit" class="btn-admin-danger btn-sm"><i class="fas fa-trash"></i></button>
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <button type="submit" class="btn-admin-danger btn-sm" title="Delete Message">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </form>
             </div>
         </div>

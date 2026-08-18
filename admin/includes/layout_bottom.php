@@ -12,8 +12,19 @@ $(document).ready(function(){
             $('body').toggleClass('sidebar-collapsed');
             localStorage.setItem('sidebarCollapsed', $('body').hasClass('sidebar-collapsed'));
         } else {
-            $('#adminSidebar').toggleClass('show');
-            $('#sidebarOverlay').toggleClass('show');
+            const isOpen = $('#adminSidebar').hasClass('show');
+            
+            if (isOpen) {
+                // Close sidebar
+                $('#adminSidebar').removeClass('show');
+                $('#sidebarOverlay').removeClass('show');
+                $('body').removeClass('sidebar-open');
+            } else {
+                // Open sidebar
+                $('#adminSidebar').addClass('show');
+                $('#sidebarOverlay').addClass('show');
+                $('body').addClass('sidebar-open');
+            }
         }
     });
 
@@ -24,8 +35,68 @@ $(document).ready(function(){
 
     // Close sidebar on overlay click (mobile)
     $('#sidebarOverlay').on('click', function(){
-        $('#adminSidebar').removeClass('show');
-        $(this).removeClass('show');
+        closeMobileSidebar();
+    });
+
+    // Mobile sidebar navigation fixes
+    function closeMobileSidebar() {
+        if ($(window).width() <= 991) {
+            $('#adminSidebar').removeClass('show');
+            $('#sidebarOverlay').removeClass('show');
+            $('body').removeClass('sidebar-open');
+        }
+    }
+
+    // Close sidebar when clicking navigation links on mobile
+    $('.nav-item').on('click', function(e) {
+        // Only close if it's an actual navigation (has href)
+        if ($(this).attr('href') && $(this).attr('href') !== '#') {
+            closeMobileSidebar();
+        }
+    });
+
+    // Handle browser back/forward button
+    $(window).on('pageshow', function(event) {
+        // Close sidebar when page is shown (including back button)
+        closeMobileSidebar();
+        
+        // If page was loaded from cache (back/forward button)
+        if (event.originalEvent.persisted) {
+            closeMobileSidebar();
+        }
+    });
+
+    // Close sidebar on window resize to desktop
+    $(window).on('resize', function() {
+        if ($(window).width() > 991) {
+            $('#adminSidebar').removeClass('show');
+            $('#sidebarOverlay').removeClass('show');
+            $('body').removeClass('sidebar-open');
+        }
+    });
+
+    // Close sidebar on popstate (browser navigation)
+    $(window).on('popstate', function() {
+        closeMobileSidebar();
+    });
+
+    // Ensure sidebar is closed on page load (mobile)
+    $(window).on('load', function() {
+        closeMobileSidebar();
+    });
+
+    // Enhanced escape key handling
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && $(window).width() <= 991) {
+            closeMobileSidebar();
+        }
+    });
+
+    // Handle visibility change (tab switching)
+    $(document).on('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            closeMobileSidebar();
+        }
     });
 
     // Auto-dismiss alerts after 5 seconds

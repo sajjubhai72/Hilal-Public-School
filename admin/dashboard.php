@@ -4,6 +4,9 @@ require_once 'includes/auth.php';
 require_once '../includes/nepali_date.php';
 require_once 'includes/layout_top.php';
 
+// Check if hero slider system is set up
+$heroSliderSetup = $conn->query("SHOW TABLES LIKE 'hero_sliders'")->num_rows > 0;
+
 // Stats
 $totalStudents       = $conn->query("SELECT COUNT(*) as c FROM students WHERE status='active'")->fetch_assoc()['c'];
 $totalTeachers       = $conn->query("SELECT COUNT(*) as c FROM users WHERE role='teacher' AND status='active'")->fetch_assoc()['c'];
@@ -52,6 +55,32 @@ $recentMessages = $conn->query("SELECT * FROM contact_messages ORDER BY created_
         </a>
     </div>
 </div>
+
+<!-- Hero Slider Setup Notification -->
+<?php if (!$heroSliderSetup): ?>
+<div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+    <div class="d-flex align-items-start">
+        <div class="me-3">
+            <i class="fas fa-images fa-2x text-info"></i>
+        </div>
+        <div class="flex-grow-1">
+            <h6 class="alert-heading mb-2">🎉 New Feature: Admin Hero Slider</h6>
+            <p class="mb-2">
+                Take control of your homepage! The new Hero Slider system lets you create and manage 
+                custom slides with your own images, titles, and call-to-action buttons.
+            </p>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="setup_hero_slider.php" class="btn btn-info btn-sm">
+                    <i class="fas fa-tools me-1"></i>Setup Now
+                </a>
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="alert">
+                    <i class="fas fa-times me-1"></i>Dismiss
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <!-- Stat Cards Row 1 -->
 <div class="row g-3 mb-4">

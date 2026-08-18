@@ -230,7 +230,7 @@ $totalTeachers   = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='t
                 <div class="carousel-item active">
                     <div class="leadership-card">
                         <div class="leadership-photo-wrap">
-                            <img src="./image/principal.png" alt="Principal"
+                            <img src="./image/principa.jpeg" alt="Principal"
                                  onerror="this.src='https://ui-avatars.com/api/?name=Principal&background=1b6b35&color=fff&size=120'">
                             <div class="leadership-role-badge" style="background:var(--primary);">
                                 <i class="fas fa-user-tie me-1"></i>Principal
@@ -254,7 +254,7 @@ $totalTeachers   = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='t
                 <div class="carousel-item">
                     <div class="leadership-card">
                         <div class="leadership-photo-wrap">
-                            <img src="./image/principal.png" alt="Chairperson"
+                            <img src="./image/Chairperson.jpeg" alt="Chairperson"
                                  onerror="this.src='https://ui-avatars.com/api/?name=Chairperson&background=b5281f&color=fff&size=120'">
                             <div class="leadership-role-badge" style="background:#b5281f;">
                                 <i class="fas fa-crown me-1"></i>Chairperson
@@ -278,7 +278,7 @@ $totalTeachers   = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='t
                 <div class="carousel-item">
                     <div class="leadership-card">
                         <div class="leadership-photo-wrap">
-                            <img src="./image/principal.png" alt="Managing Director"
+                            <img src="./image/director.jpeg" alt="Managing Director"
                                  onerror="this.src='https://ui-avatars.com/api/?name=Managing+Director&background=0284c7&color=fff&size=120'">
                             <div class="leadership-role-badge" style="background:#0284c7;">
                                 <i class="fas fa-briefcase me-1"></i>Managing Director
@@ -291,7 +291,7 @@ $totalTeachers   = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='t
                                 traditional Islamic education and modern academic excellence. The results we have
                                 achieved — 100% SEE pass rates for over 13 consecutive years — stand as a testament
                                 to the commitment of our teachers, students, and the entire Hilal family."
-                            </p>
+                            </p>git status
                             <div class="leadership-name">Managing Director</div>
                             <div class="leadership-school">Hilal Public Secondary School</div>
                         </div>
@@ -302,7 +302,7 @@ $totalTeachers   = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE role='t
                 <div class="carousel-item">
                     <div class="leadership-card">
                         <div class="leadership-photo-wrap">
-                            <img src="./image/principal.png" alt="Vice Principal"
+                            <img src="./image/vice-principal.jpeg" alt="Vice Principal"
                                  onerror="this.src='https://ui-avatars.com/api/?name=Vice+Principal&background=7c3aed&color=fff&size=120'">
                             <div class="leadership-role-badge" style="background:#7c3aed;">
                                 <i class="fas fa-chalkboard-teacher me-1"></i>Vice Principal

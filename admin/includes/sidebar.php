@@ -58,6 +58,9 @@ $unpublishedResults  = $conn->query("SELECT COUNT(*) as cnt FROM result_publish 
         </a>
 
         <div class="nav-section">Content</div>
+        <a href="hero_slider.php" class="nav-item <?= $currentAdminPage==='hero_slider.php'?'active':'' ?>" data-tooltip="Hero Slider">
+            <i class="fas fa-images"></i><span>Hero Slider</span>
+        </a>
         <a href="notices.php" class="nav-item <?= $currentAdminPage==='notices.php'?'active':'' ?>" data-tooltip="Notices">
             <i class="fas fa-bullhorn"></i><span>Notices</span>
         </a>
@@ -65,7 +68,7 @@ $unpublishedResults  = $conn->query("SELECT COUNT(*) as cnt FROM result_publish 
             <i class="fas fa-calendar-alt"></i><span>Events</span>
         </a>
         <a href="gallery.php" class="nav-item <?= $currentAdminPage==='gallery.php'?'active':'' ?>" data-tooltip="Gallery">
-            <i class="fas fa-images"></i><span>Gallery</span>
+            <i class="fas fa-photo-video"></i><span>Gallery</span>
         </a>
 
         <div class="nav-section">Applications</div>

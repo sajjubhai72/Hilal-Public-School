@@ -2,6 +2,11 @@
 $pageTitle = 'Scholarship Applications';
 require_once 'includes/auth.php';
 
+// Generate CSRF token for form protection
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // ── CSV Export ─────────────────────────────────────────
 if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     header('Content-Type: text/csv; charset=utf-8');
@@ -41,17 +46,66 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
 $message = ''; $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $appId  = (int)($_POST['app_id'] ?? 0);
+    // Verify CSRF token
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $message = "Invalid form submission. Please try again.";
+        $messageType = 'danger';
+    } else {
+        // Regenerate token after successful submission
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        
+        $action = $_POST['action'] ?? '';
+        $appId  = (int)($_POST['app_id'] ?? 0);
 
-    if ($action === 'update_status' && $appId) {
-        $status  = sanitize($conn, $_POST['status'] ?? 'pending');
-        $remarks = sanitize($conn, $_POST['remarks'] ?? '');
-        $conn->query("UPDATE scholarship_applications SET status='$status', remarks='$remarks', reviewed_by=$adminId, reviewed_at=NOW() WHERE id=$appId");
-        $message = 'Status updated!'; $messageType = 'success';
-    } elseif ($action === 'delete' && $appId) {
-        $conn->query("DELETE FROM scholarship_applications WHERE id=$appId");
-        $message = 'Application deleted.'; $messageType = 'warning';
+        if ($action === 'update_status' && $appId) {
+            $status  = sanitize($conn, $_POST['status'] ?? 'pending');
+            $remarks = sanitize($conn, $_POST['remarks'] ?? '');
+            $conn->query("UPDATE scholarship_applications SET status='$status', remarks='$remarks', reviewed_by=$adminId, reviewed_at=NOW() WHERE id=$appId");
+            $message = 'Status updated successfully!'; $messageType = 'success';
+        } elseif ($action === 'delete' && $appId) {
+            // Get documents to delete files
+            $application = $conn->query("SELECT supporting_documents FROM scholarship_applications WHERE id=$appId")->fetch_assoc();
+            
+            if ($conn->query("DELETE FROM scholarship_applications WHERE id=$appId")) {
+                // Delete uploaded files
+                if ($application['supporting_documents']) {
+                    $docPath = '../uploads/scholarship/' . $application['supporting_documents'];
+                    if (file_exists($docPath)) unlink($docPath);
+                }
+                $message = 'Scholarship application deleted successfully.'; $messageType = 'success';
+            } else {
+                $message = 'Failed to delete scholarship application.'; $messageType = 'danger';
+            }
+        }
+        
+        // Redirect to prevent form resubmission (PRG pattern)
+        if ($message) {
+            // Preserve current state
+            $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $currentSearch = isset($_GET['search']) ? $_GET['search'] : '';
+            $currentStatus = isset($_GET['status']) ? $_GET['status'] : '';
+            $currentSort = isset($_GET['sort']) ? $_GET['sort'] : 'submitted_at';
+            $currentDir = isset($_GET['dir']) ? $_GET['dir'] : 'DESC';
+            $currentPerPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+            
+            // Build redirect URL with current state
+            $redirectParams = [];
+            if ($currentPage > 1) $redirectParams[] = "page=$currentPage";
+            if (!empty($currentSearch)) $redirectParams[] = "search=" . urlencode($currentSearch);
+            if (!empty($currentStatus)) $redirectParams[] = "status=" . urlencode($currentStatus);
+            if ($currentSort !== 'submitted_at') $redirectParams[] = "sort=$currentSort";
+            if ($currentDir !== 'DESC') $redirectParams[] = "dir=$currentDir";
+            if ($currentPerPage !== 10) $redirectParams[] = "per_page=$currentPerPage";
+            
+            $redirectUrl = 'scholarship.php' . (!empty($redirectParams) ? '?' . implode('&', $redirectParams) : '');
+            
+            echo "<script>
+                sessionStorage.setItem('scholarshipMessage', '" . addslashes($message) . "');
+                sessionStorage.setItem('scholarshipMessageType', '$messageType');
+                window.location.href = '$redirectUrl';
+            </script>";
+            exit;
+        }
     }
 }
 
@@ -106,6 +160,39 @@ $sUrl = function($ov) use ($bp) {
 
 require_once 'includes/layout_top.php';
 ?>
+
+<!-- Alert Messages -->
+<div id="alertContainer"></div>
+
+<script>
+// Show alert messages from session storage
+document.addEventListener('DOMContentLoaded', function() {
+    const message = sessionStorage.getItem('scholarshipMessage');
+    const type = sessionStorage.getItem('scholarshipMessageType');
+    
+    if (message) {
+        const alertClass = type === 'success' ? 'alert-success' : (type === 'danger' ? 'alert-danger' : 'alert-warning');
+        const alertIcon = type === 'success' ? 'fa-check-circle' : (type === 'danger' ? 'fa-exclamation-triangle' : 'fa-info-circle');
+        
+        document.getElementById('alertContainer').innerHTML = `
+            <div class="alert ${alertClass} alert-dismissible fade show mb-4">
+                <i class="fas ${alertIcon} me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Clear the messages
+        sessionStorage.removeItem('scholarshipMessage');
+        sessionStorage.removeItem('scholarshipMessageType');
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.remove();
+        }, 5000);
+    }
+});
+</script>
 
 <?php if($message): ?>
 <div class="alert alert-<?= $messageType ?> alert-dismissible alert-auto-dismiss fade show mb-4">
@@ -259,9 +346,14 @@ require_once 'includes/layout_top.php';
                             <a href="../uploads/scholarship/<?= $app['documents'] ?>" target="_blank"
                                class="btn-admin-success btn-sm"><i class="fas fa-file"></i></a>
                             <?php endif; ?>
-                            <form method="POST" onsubmit="return confirm('Delete?')">
+                            <form method="POST" onsubmit="return confirm('Are you sure you want to delete this scholarship application? This action cannot be undone.')">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                <button type="submit" class="btn-admin-danger btn-sm" title="Delete Application">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                                 <button type="submit" class="btn-admin-danger btn-sm"><i class="fas fa-trash"></i></button>
                             </form>
                         </div>

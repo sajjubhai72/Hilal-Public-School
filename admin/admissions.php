@@ -3,6 +3,11 @@ $pageTitle = 'Manage Admissions';
 require_once 'includes/auth.php';
 require_once '../includes/nepali_date.php';
 
+// Generate CSRF token for form protection
+if (!isset($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // ── CSV Export — must be before any HTML output ────────
 if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     header('Content-Type: text/csv; charset=utf-8');
@@ -39,17 +44,70 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
 $message = ''; $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $admId  = (int)($_POST['admission_id'] ?? 0);
+    // Verify CSRF token
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $message = "Invalid form submission. Please try again.";
+        $messageType = 'danger';
+    } else {
+        // Regenerate token after successful submission
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        
+        $action = $_POST['action'] ?? '';
+        $admId  = (int)($_POST['admission_id'] ?? 0);
 
-    if ($action === 'update_status' && $admId) {
-        $status  = sanitize($conn, $_POST['status'] ?? 'pending');
-        $remarks = sanitize($conn, $_POST['remarks'] ?? '');
-        $conn->query("UPDATE admissions SET status='$status', remarks='$remarks', reviewed_by=$adminId, reviewed_at=NOW() WHERE id=$admId");
-        $message = 'Status updated!'; $messageType = 'success';
-    } elseif ($action === 'delete' && $admId) {
-        $conn->query("DELETE FROM admissions WHERE id=$admId");
-        $message = 'Record deleted.'; $messageType = 'warning';
+        if ($action === 'update_status' && $admId) {
+            $status  = sanitize($conn, $_POST['status'] ?? 'pending');
+            $remarks = sanitize($conn, $_POST['remarks'] ?? '');
+            $conn->query("UPDATE admissions SET status='$status', remarks='$remarks', reviewed_by=$adminId, reviewed_at=NOW() WHERE id=$admId");
+            $message = 'Status updated successfully!'; $messageType = 'success';
+        } elseif ($action === 'delete' && $admId) {
+            // Get documents to delete files
+            $admission = $conn->query("SELECT documents, student_photo FROM admissions WHERE id=$admId")->fetch_assoc();
+            
+            if ($conn->query("DELETE FROM admissions WHERE id=$admId")) {
+                // Delete uploaded files
+                if ($admission['documents']) {
+                    $docPath = '../uploads/admissions/' . $admission['documents'];
+                    if (file_exists($docPath)) unlink($docPath);
+                }
+                if ($admission['student_photo']) {
+                    $photoPath = '../uploads/admissions/' . $admission['student_photo'];
+                    if (file_exists($photoPath)) unlink($photoPath);
+                }
+                $message = 'Admission record deleted successfully.'; $messageType = 'success';
+            } else {
+                $message = 'Failed to delete admission record.'; $messageType = 'danger';
+            }
+        }
+        
+        // Redirect to prevent form resubmission (PRG pattern)
+        if ($message) {
+            // Preserve current state
+            $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $currentSearch = isset($_GET['search']) ? $_GET['search'] : '';
+            $currentStatus = isset($_GET['status']) ? $_GET['status'] : '';
+            $currentSort = isset($_GET['sort']) ? $_GET['sort'] : 'submitted_at';
+            $currentDir = isset($_GET['dir']) ? $_GET['dir'] : 'DESC';
+            $currentPerPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+            
+            // Build redirect URL with current state
+            $redirectParams = [];
+            if ($currentPage > 1) $redirectParams[] = "page=$currentPage";
+            if (!empty($currentSearch)) $redirectParams[] = "search=" . urlencode($currentSearch);
+            if (!empty($currentStatus)) $redirectParams[] = "status=" . urlencode($currentStatus);
+            if ($currentSort !== 'submitted_at') $redirectParams[] = "sort=$currentSort";
+            if ($currentDir !== 'DESC') $redirectParams[] = "dir=$currentDir";
+            if ($currentPerPage !== 10) $redirectParams[] = "per_page=$currentPerPage";
+            
+            $redirectUrl = 'admissions.php' . (!empty($redirectParams) ? '?' . implode('&', $redirectParams) : '');
+            
+            echo "<script>
+                sessionStorage.setItem('admissionMessage', '" . addslashes($message) . "');
+                sessionStorage.setItem('admissionMessageType', '$messageType');
+                window.location.href = '$redirectUrl';
+            </script>";
+            exit;
+        }
     }
 }
 
@@ -106,6 +164,39 @@ $aUrl = function($ov) use ($bp) {
 
 require_once 'includes/layout_top.php';
 ?>
+
+<!-- Alert Messages -->
+<div id="alertContainer"></div>
+
+<script>
+// Show alert messages from session storage
+document.addEventListener('DOMContentLoaded', function() {
+    const message = sessionStorage.getItem('admissionMessage');
+    const type = sessionStorage.getItem('admissionMessageType');
+    
+    if (message) {
+        const alertClass = type === 'success' ? 'alert-success' : (type === 'danger' ? 'alert-danger' : 'alert-warning');
+        const alertIcon = type === 'success' ? 'fa-check-circle' : (type === 'danger' ? 'fa-exclamation-triangle' : 'fa-info-circle');
+        
+        document.getElementById('alertContainer').innerHTML = `
+            <div class="alert ${alertClass} alert-dismissible fade show mb-4">
+                <i class="fas ${alertIcon} me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        // Clear the messages
+        sessionStorage.removeItem('admissionMessage');
+        sessionStorage.removeItem('admissionMessageType');
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            const alert = document.querySelector('.alert');
+            if (alert) alert.remove();
+        }, 5000);
+    }
+});
+</script>
 
 <?php if($message): ?>
 <div class="alert alert-<?= $messageType ?> alert-dismissible alert-auto-dismiss fade show mb-4">
@@ -266,10 +357,13 @@ require_once 'includes/layout_top.php';
                             <a href="../uploads/admissions/<?= $adm['documents'] ?>" target="_blank"
                                class="btn-admin-success btn-sm" title="View Document"><i class="fas fa-file"></i></a>
                             <?php endif; ?>
-                            <form method="POST" onsubmit="return confirm('Delete this record?')">
+                            <form method="POST" onsubmit="return confirm('Are you sure you want to delete this admission record? This action cannot be undone.')">
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="admission_id" value="<?= $adm['id'] ?>">
-                                <button type="submit" class="btn-admin-danger btn-sm"><i class="fas fa-trash"></i></button>
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                <button type="submit" class="btn-admin-danger btn-sm" title="Delete Record">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </form>
                         </div>
                     </td>

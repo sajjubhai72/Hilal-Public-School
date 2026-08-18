@@ -463,9 +463,28 @@ body {
         inset: 0;
         background: rgba(0,0,0,0.5);
         z-index: 1040;
+        transition: opacity 0.3s ease;
+        opacity: 0;
     }
     .sidebar-overlay.show {
         display: block;
+        opacity: 1;
+    }
+    
+    /* Prevent body scroll when sidebar is open on mobile */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+    
+    /* Improved mobile sidebar animations */
+    .admin-sidebar {
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    /* Touch improvements for mobile */
+    .nav-item {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
     }
 }
 

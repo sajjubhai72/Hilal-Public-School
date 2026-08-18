@@ -47,23 +47,98 @@ $estYearBS    = (int)getSetting($conn, 'established_year_bs');
 if (!$estYearBS) $estYearBS = (int)$estYear; // fallback if setting missing
 $currentBS    = getCurrentBS();
 $yearsRunning = max(1, $currentBS['year'] - $estYearBS);
+
+// Get hero sliders
+$heroSliders = $conn->query("SELECT * FROM hero_sliders WHERE status='active' ORDER BY display_order ASC, id ASC")->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!-- ╔══════════════════════════════════════╗
      ║         HERO SLIDER                  ║
      ╚══════════════════════════════════════╝ -->
+<?php if (!empty($heroSliders)): ?>
 <div id="heroSlider" class="carousel slide hero-slider" data-bs-ride="carousel" data-bs-interval="5500">
+    <?php if (count($heroSliders) > 1): ?>
     <div class="carousel-indicators">
-        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="0" class="active"></button>
-        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="1"></button>
-        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="2"></button>
+        <?php foreach ($heroSliders as $index => $slider): ?>
+        <button type="button" data-bs-target="#heroSlider" data-bs-slide-to="<?= $index ?>" <?= $index === 0 ? 'class="active"' : '' ?>></button>
+        <?php endforeach; ?>
     </div>
+    <?php endif; ?>
+    
     <div class="carousel-inner">
-
-        <!-- Slide 1 -->
+        <?php foreach ($heroSliders as $index => $slider): ?>
+        <div class="carousel-item <?= $index === 0 ? 'active' : '' ?> hero-slide-<?= $index + 1 ?>">
+            <div class="hero-image-container" style="position: relative; width: 100%; height: 100%; background: linear-gradient(135deg, #1b6b35 0%, #2d8f47 100%);">
+                <img src="./uploads/sliders/<?= htmlspecialchars($slider['image_path']) ?>" 
+                     alt="<?= htmlspecialchars($slider['title']) ?>"
+                     class="hero-slide-image"
+                     style="width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s ease;"
+                     loading="<?= $index === 0 ? 'eager' : 'lazy' ?>"
+                     onload="this.style.opacity='1';"
+                     onerror="this.style.opacity='1'; this.src='./image/image.png';">
+            </div>
+            <div class="carousel-caption">
+                <?php if ($slider['badge_text']): ?>
+                <div class="hero-badge" data-animate><?= htmlspecialchars($slider['badge_text']) ?></div>
+                <?php endif; ?>
+                
+                <h1 data-animate>
+                    <?= htmlspecialchars($slider['title']) ?>
+                    <?php if ($slider['subtitle']): ?>
+                    <br><span class="hero-highlight"><?= htmlspecialchars($slider['subtitle']) ?></span>
+                    <?php endif; ?>
+                </h1>
+                
+                <?php if ($slider['description']): ?>
+                <p data-animate><?= htmlspecialchars($slider['description']) ?></p>
+                <?php endif; ?>
+                
+                <div class="hero-location" data-animate>
+                    <i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars($schoolAddress) ?>
+                </div>
+                
+                <?php if ($slider['button_text_1'] || $slider['button_text_2']): ?>
+                <div class="hero-actions mt-4" data-animate>
+                    <?php if ($slider['button_text_1'] && $slider['button_link_1']): ?>
+                    <a href="<?= htmlspecialchars($slider['button_link_1']) ?>" class="hero-btn-primary">
+                        <?= htmlspecialchars($slider['button_text_1']) ?>
+                    </a>
+                    <?php endif; ?>
+                    
+                    <?php if ($slider['button_text_2'] && $slider['button_link_2']): ?>
+                    <a href="<?= htmlspecialchars($slider['button_link_2']) ?>" class="hero-btn-accent">
+                        <?= htmlspecialchars($slider['button_text_2']) ?> <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    
+    <?php if (count($heroSliders) > 1): ?>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroSlider" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+    <?php endif; ?>
+</div>
+<?php else: ?>
+<!-- Fallback Default Slider when no sliders are configured -->
+<div id="heroSlider" class="carousel slide hero-slider" data-bs-ride="carousel" data-bs-interval="5500">
+    <div class="carousel-inner">
         <div class="carousel-item active hero-slide-1">
-            <img src="./image/image.png" alt="School"
-                 onerror="this.src='https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1400&q=80'">
+            <div class="hero-image-container" style="position: relative; width: 100%; height: 100%; background: linear-gradient(135deg, #1b6b35 0%, #2d8f47 100%);">
+                <img src="./image/image.png" alt="School"
+                     class="hero-slide-image"
+                     style="width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s ease;"
+                     loading="eager"
+                     onload="this.style.opacity='1';"
+                     onerror="this.style.opacity='1'; this.src='https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1400&q=80';">
+            </div>
             <div class="carousel-caption">
                 <div class="hero-badge" data-animate>Est. <?= $estYearBS ?> BS</div>
                 <h1 data-animate>Welcome to<br><span class="hero-highlight"><?= htmlspecialchars($schoolName) ?></span></h1>
@@ -72,50 +147,14 @@ $yearsRunning = max(1, $currentBS['year'] - $estYearBS);
                     <i class="fas fa-map-marker-alt me-1"></i><?= htmlspecialchars($schoolAddress) ?>
                 </div>
                 <div class="hero-actions mt-4" data-animate>
-                    <a href="about.php" class="hero-btn-primary">Learn More</a>
-                    <a href="admissions.php" class="hero-btn-accent">Apply Now <i class="fas fa-arrow-right ms-1"></i></a>
+                    <a href="about" class="hero-btn-primary">Learn More</a>
+                    <a href="admissions" class="hero-btn-accent">Apply Now <i class="fas fa-arrow-right ms-1"></i></a>
                 </div>
             </div>
         </div>
-
-        <!-- Slide 2 -->
-        <div class="carousel-item hero-slide-2">
-            <img src="./image/image.png" alt="Teachers"
-                 onerror="this.src='./image/image.png">
-            <div class="carousel-caption">
-                <div class="hero-badge">Academics</div>
-                <h1>Quality Education<br><span class="hero-highlight">For Every Child</span></h1>
-                <p>Nurturing young minds with modern curriculum and dedicated teachers in Sunsari, Nepal.</p>
-                <div class="hero-actions mt-4">
-                    <a href="teachers.php" class="hero-btn-primary">Meet Our Teachers</a>
-                    <a href="results.php" class="hero-btn-accent">Check Results <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 3 -->
-        <div class="carousel-item hero-slide-3">
-            <img src="./image/bulding.jpg" alt="Scholarship"
-                 onerror="this.src='https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1400&q=80'">
-            <div class="carousel-caption">
-                <div class="hero-badge">Scholarship</div>
-                <h1>Empowering Students<br><span class="hero-highlight">Through Scholarships</span></h1>
-                <p>Supporting deserving students from Harinagar, Ghuski and surrounding areas to achieve their dreams.</p>
-                <div class="hero-actions mt-4">
-                    <a href="scholarship.php" class="hero-btn-primary">Apply for Scholarship</a>
-                    <a href="contact.php" class="hero-btn-accent">Contact Us <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
-            </div>
-        </div>
-
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#heroSlider" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#heroSlider" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-    </button>
 </div>
+<?php endif; ?>
 
 <!-- ╔══════════════════════════════════════╗
      ║       QUICK ACCESS LINKS             ║
